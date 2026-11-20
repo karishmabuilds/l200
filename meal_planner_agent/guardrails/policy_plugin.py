@@ -80,7 +80,7 @@ class ResponseSelfEvaluator:
                 f"avoid {term}",
                 f"excluding {term}",
                 f"exclude {term}",
-                f"excluded allergens",
+                "excluded allergens",
                 f"allergic to {term}",
             )
             cleaned = lower

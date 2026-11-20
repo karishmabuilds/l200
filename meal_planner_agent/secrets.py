@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 from functools import lru_cache
 from typing import Any
@@ -42,7 +43,10 @@ class SecretManagerProvider:
 
             self._client = secretmanager.SecretManagerServiceClient()
             return self._client
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logging.getLogger(__name__).debug(
+                "Secret Manager client unavailable, using env fallback: %s", exc
+            )
             return None
 
     def get_secret(
@@ -82,9 +86,12 @@ class SecretManagerProvider:
                 if payload:
                     self._cache[cache_key] = payload
                     return payload
-            except Exception:
-                # Fall through to local environment fallback for local/dev workflows.
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logging.getLogger(__name__).debug(
+                    "Secret Manager lookup fell back to environment variable for '%s': %s",
+                    secret_id,
+                    exc,
+                )
 
         # 2. Local / CI environment variable fallback (never hardcoded defaults).
         if env_fallback:

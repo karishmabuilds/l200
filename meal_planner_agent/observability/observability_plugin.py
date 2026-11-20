@@ -85,8 +85,8 @@ class ObservabilityAndTracingPlugin(BasePlugin):
         span.end()
         try:
             otel_context.detach(token)
-        except Exception:
-            pass
+        except ValueError as exc:
+            self._logger.debug("Span context detach skipped across async boundary: %s", exc)
         return latency_ms, intent_record
 
     async def before_run_callback(

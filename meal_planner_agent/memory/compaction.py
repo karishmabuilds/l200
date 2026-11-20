@@ -10,7 +10,12 @@ from google.adk.apps.app import EventsCompactionConfig
 from google.adk.apps.llm_event_summarizer import LlmEventSummarizer
 from google.adk.models.google_llm import Gemini
 
-from meal_planner_agent.config import AgentSettings, TaskComplexity, StrategicModelRouter, get_settings
+from meal_planner_agent.config import (
+    AgentSettings,
+    StrategicModelRouter,
+    TaskComplexity,
+    get_settings,
+)
 from meal_planner_agent.observability.pii_redactor import PIIRedactor, get_pii_redactor
 
 COMPACTION_PROMPT_TEMPLATE = (

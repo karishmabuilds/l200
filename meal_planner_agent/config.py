@@ -6,7 +6,7 @@ import os
 from enum import Enum
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import ClassVar, Literal
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
@@ -135,7 +135,7 @@ class AgentSettings(BaseModel):
 class StrategicModelRouter:
     """Routes agent subtasks between fast (Flash) and deep reasoning (Pro) models."""
 
-    _ROUTING_TABLE: dict[TaskComplexity, ModelTier] = {
+    _ROUTING_TABLE: ClassVar[dict[TaskComplexity, ModelTier]] = {
         TaskComplexity.PANTRY_LOOKUP: ModelTier.FAST,
         TaskComplexity.PROFILE_RETRIEVAL: ModelTier.FAST,
         TaskComplexity.GROCERY_LIST_OPTIMIZATION: ModelTier.FAST,

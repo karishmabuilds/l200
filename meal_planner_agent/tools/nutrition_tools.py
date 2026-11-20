@@ -346,9 +346,11 @@ def generate_weekly_meal_schedule(
             return False
         recipe_tags = set(recipe["dietary_tags"])
         for diet in normalized_diets:
-            if diet in {"vegan", "vegetarian", "dairy_free", "gluten_free", "pescatarian"}:
-                if diet not in recipe_tags:
-                    return False
+            if (
+                diet in {"vegan", "vegetarian", "dairy_free", "gluten_free", "pescatarian"}
+                and diet not in recipe_tags
+            ):
+                return False
         for ing in recipe["ingredients"]:
             entry = INGREDIENT_DATABASE.get(ing["name"].lower(), {})
             if normalized_allergens.intersection(entry.get("allergens", [])):
@@ -380,8 +382,8 @@ def generate_weekly_meal_schedule(
         ).model_dump()
 
     # Sort preferred cuisines first within each meal slot for deterministic variety
-    for slot in eligible_by_slot:
-        eligible_by_slot[slot].sort(
+    for recipes in eligible_by_slot.values():
+        recipes.sort(
             key=lambda r: (0 if r["cuisine"].lower() in preferred else 1, r["recipe_id"])
         )
 

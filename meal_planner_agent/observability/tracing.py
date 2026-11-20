@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
@@ -53,8 +55,10 @@ def configure_tracing(
                         CloudTraceSpanExporter(project_id=cfg.google_cloud_project)
                     )
                 )
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logging.getLogger(__name__).debug(
+                    "Cloud Trace exporter unavailable, continuing with local tracer: %s", exc
+                )
 
         if cfg.otel_exporter_otlp_endpoint:
             try:
@@ -67,8 +71,10 @@ def configure_tracing(
                         OTLPSpanExporter(endpoint=cfg.otel_exporter_otlp_endpoint)
                     )
                 )
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logging.getLogger(__name__).debug(
+                    "OTLP exporter unavailable, continuing with local tracer: %s", exc
+                )
 
         trace.set_tracer_provider(provider)
         _CONFIGURED_PROVIDER = provider

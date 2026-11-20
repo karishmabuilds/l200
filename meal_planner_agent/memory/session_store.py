@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import math
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -162,7 +163,7 @@ class PersistentMealMemoryStore:
             if daily_calorie_target is not None
             else existing.get("daily_calorie_target")
         )
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
 
         async with aiosqlite.connect(self._db_path) as db:
             await db.execute(
@@ -249,7 +250,7 @@ class PersistentMealMemoryStore:
         if not scrubbed_text:
             return -1
         embedding = compute_text_embedding(scrubbed_text)
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         async with aiosqlite.connect(self._db_path) as db:
             cursor = await db.execute(
                 """
@@ -353,12 +354,15 @@ class PersistentMealMemoryStore:
                         "author": "knowledge_base",
                         "content_text": self._redactor.redact_text(snippet),
                         "score": 0.9,
-                        "created_at": datetime.now(timezone.utc).isoformat(),
+                        "created_at": datetime.now(UTC).isoformat(),
                         "source": "vertex_ai_search",
                     }
                 )
             return hits
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logging.getLogger(__name__).debug(
+                "Vertex AI Search unavailable, using local SQLite vector store: %s", exc
+            )
             return []
 
 

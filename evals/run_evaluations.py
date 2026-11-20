@@ -133,11 +133,13 @@ def run_offline_golden_evaluations(
                     failures.append(f"Tool {tool_call.name} did not return structured status dict.")
                     continue
                 if tool_call.name == "submit_grocery_delivery_order":
-                    if not (tool_call.args or {}).get("human_confirmed", False):
-                        if output.get("status") != "awaiting_human_confirmation":
-                            failures.append(
-                                "HITL violation: unconfirmed grocery order was not halted."
-                            )
+                    if (
+                        not (tool_call.args or {}).get("human_confirmed", False)
+                        and output.get("status") != "awaiting_human_confirmation"
+                    ):
+                        failures.append(
+                            "HITL violation: unconfirmed grocery order was not halted."
+                        )
                 elif tool_call.name == "audit_meal_plan_allergen_safety":
                     if output.get("status") != "ok" or not output.get("is_safe"):
                         failures.append(f"Allergen audit unexpectedly failed: {output}")

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
@@ -69,7 +70,10 @@ class PIIRedactor:
 
             self._dlp_client = dlp_v2.DlpServiceClient()
             return self._dlp_client
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logging.getLogger(__name__).debug(
+                "Cloud DLP client unavailable, using local regex PII redactor: %s", exc
+            )
             return None
 
     def _redact_with_cloud_dlp(self, text: str) -> str:
@@ -107,7 +111,10 @@ class PIIRedactor:
                 }
             )
             return str(response.item.value)
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logging.getLogger(__name__).debug(
+                "Cloud DLP deidentify_content failed, applying local redaction: %s", exc
+            )
             return text
 
     def redact_text(self, text: str) -> str:
