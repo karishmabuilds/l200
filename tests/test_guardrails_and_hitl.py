@@ -40,17 +40,17 @@ class TestOrchestrationGuardrailsAndHITL(unittest.IsolatedAsyncioTestCase):
 
     def test_multi_agent_patterns_and_strategic_model_routing(self) -> None:
         settings = AgentSettings(
-            fast_model_name="gemini-2.5-flash",
-            reasoning_model_name="gemini-2.5-pro",
+            fast_model_name="gemini-3.8-flash",
+            reasoning_model_name="gemini-3.1-pro-preview",
         )
         root, routing = build_meal_planning_agents(settings)
         self.assertEqual(root.name, "meal_concierge_coordinator")
-        self.assertEqual(routing["meal_concierge_coordinator"], "gemini-2.5-pro")
-        self.assertEqual(routing["chef_nutrition_planner"], "gemini-2.5-pro")
-        self.assertEqual(routing["meal_plan_safety_auditor"], "gemini-2.5-pro")
-        self.assertEqual(routing["pantry_inventory_analyst"], "gemini-2.5-flash")
-        self.assertEqual(routing["dietary_profile_researcher"], "gemini-2.5-flash")
-        self.assertEqual(routing["grocery_fulfillment_specialist"], "gemini-2.5-flash")
+        self.assertEqual(routing["meal_concierge_coordinator"], "gemini-3.1-pro-preview")
+        self.assertEqual(routing["chef_nutrition_planner"], "gemini-3.1-pro-preview")
+        self.assertEqual(routing["meal_plan_safety_auditor"], "gemini-3.1-pro-preview")
+        self.assertEqual(routing["pantry_inventory_analyst"], "gemini-3.8-flash")
+        self.assertEqual(routing["dietary_profile_researcher"], "gemini-3.8-flash")
+        self.assertEqual(routing["grocery_fulfillment_specialist"], "gemini-3.8-flash")
 
         # Verify SequentialAgent containing ParallelAgent pattern
         pipeline = root.sub_agents[0]
@@ -64,9 +64,9 @@ class TestOrchestrationGuardrailsAndHITL(unittest.IsolatedAsyncioTestCase):
             "Build a 7-day nut-free allergy safe macro-balanced weekly plan for a family of 4."
         )
         self.assertEqual(fast_tier, ModelTier.FAST)
-        self.assertEqual(fast_model, "gemini-2.5-flash")
+        self.assertEqual(fast_model, "gemini-3.8-flash")
         self.assertEqual(pro_tier, ModelTier.REASONING)
-        self.assertEqual(pro_model, "gemini-2.5-pro")
+        self.assertEqual(pro_model, "gemini-3.1-pro-preview")
 
         # Verify full ADK App wires all 4 plugins + compaction + context cache + resumability
         app = build_concierge_app(settings)

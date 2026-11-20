@@ -1,7 +1,7 @@
 # Mise — Meal Planning Concierge Agent (Google ADK)
 
 **Track:** Concierge Agents  
-**Framework:** Google Agent Development Kit (`google-adk`), Gemini 2.5 Flash & Pro, OpenTelemetry, Terraform
+**Framework:** Google Agent Development Kit (`google-adk`), Gemini 3.8 Flash & Gemini 3.1 Pro, OpenTelemetry, Terraform
 
 ## Problem & Solution
 Weekly meal planning is tedious, error-prone for households with food allergies, and often leads to food waste and over-budget grocery trips. **Mise** is a production-hardened **Meal Planning Concierge Multi-Agent System** built with Google ADK that:
@@ -18,17 +18,17 @@ Weekly meal planning is tedious, error-prone for households with food allergies,
 flowchart TD
     User["User / FastAPI / ADK Web UI"] --> App["ADK App (Compaction + Context Cache + Resumability)"]
     App --> Plugins["ADK Plugins: Observability & OTel | Guardrails & Self-Eval | HITL Gate | Async Memory"]
-    Plugins --> Coord["meal_concierge_coordinator (gemini-2.5-pro)"]
+    Plugins --> Coord["meal_concierge_coordinator (gemini-3.1-pro-preview)"]
 
     Coord --> Pipeline["meal_planning_pipeline (SequentialAgent)"]
-    Coord --> Grocery["grocery_fulfillment_specialist (gemini-2.5-flash)"]
+    Coord --> Grocery["grocery_fulfillment_specialist (gemini-3.8-flash)"]
 
     subgraph PipelineSteps ["Sequential Meal Planning Workflow"]
         Parallel["context_and_nutrition_gatherer (ParallelAgent)"]
-        Pantry["pantry_inventory_analyst (gemini-2.5-flash)"]
-        Profile["dietary_profile_researcher (gemini-2.5-flash)"]
-        Chef["chef_nutrition_planner (gemini-2.5-pro)"]
-        Auditor["meal_plan_safety_auditor (gemini-2.5-pro)"]
+        Pantry["pantry_inventory_analyst (gemini-3.8-flash)"]
+        Profile["dietary_profile_researcher (gemini-3.8-flash)"]
+        Chef["chef_nutrition_planner (gemini-3.1-pro-preview)"]
+        Auditor["meal_plan_safety_auditor (gemini-3.1-pro-preview)"]
 
         Parallel --> Pantry
         Parallel --> Profile
@@ -57,7 +57,7 @@ flowchart TD
 | | **Persistent Session State** | ADK `SqliteSessionService` (`aiosqlite`), `PersistentMealMemoryStore` (SQLite vector embeddings + cosine similarity), and optional `VertexAiMemoryBankService` / Vertex AI Search in [`meal_planner_agent/memory/session_store.py`](meal_planner_agent/memory/session_store.py). |
 | | **Async Memory Operations** | Non-blocking background `asyncio.create_task` memory extraction & indexing via `AsyncMemoryConsolidationWorker` and `AsyncMemoryConsolidationPlugin` in [`meal_planner_agent/memory/async_memory.py`](meal_planner_agent/memory/async_memory.py). |
 | **3. Orchestration & Logic** | **Multi-Agent Patterns** | ADK Root Coordinator + `SequentialAgent` (`meal_planning_pipeline`) + `ParallelAgent` (`context_and_nutrition_gatherer`) + specialist sub-agents in [`meal_planner_agent/agent.py`](meal_planner_agent/agent.py). |
-| | **Strategic Model Routing** | `StrategicModelRouter` in [`meal_planner_agent/config.py`](meal_planner_agent/config.py) routes fast pantry/profile/grocery/summarization subtasks to `gemini-2.5-flash` and multi-constraint planning, safety auditing, and orchestration to `gemini-2.5-pro`. |
+| | **Strategic Model Routing** | `StrategicModelRouter` in [`meal_planner_agent/config.py`](meal_planner_agent/config.py) routes fast pantry/profile/grocery/summarization subtasks to `gemini-3.8-flash` and multi-constraint planning, safety auditing, and orchestration to `gemini-3.1-pro-preview`. |
 | | **Guardrails & Policy Plugins** | `GuardrailsAndPolicyPlugin` & `ResponseSelfEvaluator` in [`meal_planner_agent/guardrails/policy_plugin.py`](meal_planner_agent/guardrails/policy_plugin.py) enforce prompt-injection defense, spend caps, and post-generation allergen/PII self-evaluation. |
 | | **Human-in-the-Loop Hooks** | `HumanInTheLoopApprovalPlugin` ([`hitl_plugin.py`](meal_planner_agent/guardrails/hitl_plugin.py)), ADK `ResumabilityConfig(is_resumable=True)`, `FunctionTool(..., require_confirmation=...)`, and `ToolContext.request_confirmation(...)` in [`commerce_tools.py`](meal_planner_agent/tools/commerce_tools.py). |
 | **4. Observability & Tracing** | **Structured JSON Logging** | Cloud Logging-compatible `StructuredJsonFormatter` with trace correlation in [`meal_planner_agent/observability/structured_logging.py`](meal_planner_agent/observability/structured_logging.py). |

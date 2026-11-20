@@ -26,6 +26,7 @@ env/
 service-account*.json
 
 # Local runtime databases & telemetry logs
+.adk/
 data/
 *.db
 *.sqlite

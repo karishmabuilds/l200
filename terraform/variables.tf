@@ -24,13 +24,13 @@ variable "container_image" {
 variable "fast_model_name" {
   description = "Fast-tier Gemini model used for pantry lookups, grocery parsing, and compaction."
   type        = string
-  default     = "gemini-2.5-flash"
+  default     = "gemini-3.8-flash"
 }
 
 variable "reasoning_model_name" {
   description = "Reasoning-tier Gemini model used for multi-constraint meal planning & audits."
   type        = string
-  default     = "gemini-2.5-pro"
+  default     = "gemini-3.1-pro-preview"
 }
 
 variable "min_instances" {

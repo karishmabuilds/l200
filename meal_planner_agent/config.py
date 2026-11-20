@@ -41,7 +41,7 @@ class AgentSettings(BaseModel):
         default_factory=lambda: os.getenv("GOOGLE_CLOUD_PROJECT", "")
     )
     google_cloud_location: str = Field(
-        default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1")
+        default_factory=lambda: os.getenv("GOOGLE_CLOUD_LOCATION", "global")
     )
     use_vertex_ai: bool = Field(
         default_factory=lambda: os.getenv("GOOGLE_GENAI_USE_VERTEXAI", "false").lower() == "true"
@@ -61,10 +61,10 @@ class AgentSettings(BaseModel):
 
     # Strategic Model Routing defaults
     fast_model_name: str = Field(
-        default_factory=lambda: os.getenv("FAST_MODEL_NAME", "gemini-2.5-flash")
+        default_factory=lambda: os.getenv("FAST_MODEL_NAME", "gemini-3.8-flash")
     )
     reasoning_model_name: str = Field(
-        default_factory=lambda: os.getenv("REASONING_MODEL_NAME", "gemini-2.5-pro")
+        default_factory=lambda: os.getenv("REASONING_MODEL_NAME", "gemini-3.1-pro-preview")
     )
 
     # Persistent Storage & Vertex AI Search / Memory Bank
