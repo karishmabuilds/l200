@@ -1,0 +1,45 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables and secrets (NEVER commit credentials)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+service-account*.json
+
+# Local runtime databases & telemetry logs
+data/
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Terraform local state
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+!terraform/terraform.tfvars.example
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store

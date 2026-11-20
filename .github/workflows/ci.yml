@@ -1,0 +1,56 @@
+name: Meal Planning Concierge CI & Automated Evals
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-and-evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-asyncio ruff
+
+      - name: Lint code with Ruff
+        run: ruff check meal_planner_agent evals tests app_runner.py
+
+      - name: Run unit and integration test suite
+        run: pytest -v tests/
+
+      - name: Run Golden Dataset Automated Evaluation Suite
+        run: python evals/run_evaluations.py
+
+  terraform-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: Terraform Format Check
+        working-directory: terraform
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init & Validate
+        working-directory: terraform
+        run: |
+          terraform init -backend=false
+          terraform validate

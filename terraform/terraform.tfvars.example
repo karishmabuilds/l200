@@ -1,0 +1,7 @@
+project_id           = "your-gcp-project-id"
+region               = "us-central1"
+service_name         = "meal-planning-concierge"
+fast_model_name      = "gemini-2.5-flash"
+reasoning_model_name = "gemini-2.5-pro"
+min_instances        = 0
+max_instances        = 5

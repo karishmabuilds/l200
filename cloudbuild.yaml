@@ -1,0 +1,47 @@
+steps:
+  - name: "python:3.11-slim"
+    id: "unit-tests-and-golden-evals"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        pip install --no-cache-dir -r requirements.txt
+        python -m unittest discover -s tests -v
+        python evals/run_evaluations.py
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "build-container"
+    args:
+      - "build"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/agent:$SHORT_SHA"
+      - "-t"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/agent:latest"
+      - "."
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: "push-container"
+    args:
+      - "push"
+      - "--all-tags"
+      - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/agent"
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: "deploy-cloud-run"
+    entrypoint: "gcloud"
+    args:
+      - "run"
+      - "deploy"
+      - "${_SERVICE_NAME}"
+      - "--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/agent:$SHORT_SHA"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+
+substitutions:
+  _REGION: "us-central1"
+  _REPO_NAME: "meal-planning-concierge-repo"
+  _SERVICE_NAME: "meal-planning-concierge"
+
+images:
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/agent:$SHORT_SHA"
+  - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/agent:latest"
